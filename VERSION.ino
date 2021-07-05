@@ -1095,35 +1095,3 @@ void tiposMensaje(String str) {
 
 
 void EMERGENCIAS () {}
-
-/*
-VERSION.ino      1098
-
-globales.h         83
-
-WEB.h            1664
-WEB2.h            638
-
-GPS.h             336
-GPS.cpp           118
-MPU6050.h          40
-MPU6050.cpp       410
-MS5611.h           66
-MS5611.cpp        505
-HMC5883L.h         14
-HMC5883L.cpp      167
-BMP180.h           50
-BMP180.cpp        572
-
-PIDcontrol.h       66
-PIDcontrol.cpp    617
-
-propulsion.h      114
-propulsion.cpp    346
-
-0******=6
-/
-0*********=9
-0
-0****
-*/
