@@ -1,0 +1,75 @@
+
+<svg viewBox="0 0 100 100" height="135px" width="500px" xmlns="http://www.w3.org/2000/svg" id="turning">
+
+	<g font-size="14" text-anchor="middle" font-family="sans-serif" fill="#fff" stroke="#fff" stroke-width="1.0">
+		<rect height="100" width="500" y="0" x="-200" fill="#29B6F6"></rect> <!-- cielo -->
+		<!--<rect height="100" width="500" y="0" x="-200" fill="#8B4513"></rect>--> <!-- tierra -->
+
+		<line stroke-width="3" y2="1" x2="-200" y1="1" x1="300"></line>
+
+		<line stroke-width="2" y2="1" x2="50" y1="20" x1="50"></line>
+		<text stroke-width="0.1" y="35" x="50">0º</text>
+
+		<line y2="1" x2="60" y1="12" x1="60"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="60">10</text>
+		<line y2="1" x2="70" y1="12" x1="70"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="70">20</text>
+		<line y2="1" x2="80" y1="12" x1="80"></line>
+		<text font-size="6" stroke-width="0.1" y="18" x="80">30</text>
+		<line y2="1" x2="90" y1="12" x1="90"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="90">40</text>
+		<line y2="1" x2="100" y1="12" x1="100"></line>
+		<text font-size="6" stroke-width="0.1" y="18" x="100">50</text>
+		<line y2="1" x2="110" y1="12" x1="110"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="110">60</text>
+		<line y2="1" x2="120" y1="12" x1="120"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="120">70</text>
+		<line y2="1" x2="130" y1="12" x1="130"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="130">80</text>
+		<line stroke-width="2" y2="1" x2="140" y1="18" x1="140"></line>
+		<text stroke-width="0.1" y="35" x="140">90º</text>
+		<line y2="1" x2="150" y1="15" x1="150"></line>
+		<line y2="1" x2="160" y1="15" x1="160"></line>
+		<line y2="1" x2="170" y1="15" x1="170"></line>
+		<line y2="1" x2="180" y1="15" x1="180"></line>
+		<line y2="1" x2="190" y1="15" x1="190"></line>
+		<line y2="1" x2="200" y1="15" x1="200"></line>
+		<line y2="1" x2="210" y1="15" x1="210"></line>
+		<line y2="1" x2="220" y1="15" x1="220"></line>
+		<line y2="1" x2="230" y1="15" x1="230"></line> <!-- limite 180 -->
+
+		<line y2="1" x2="40" y1="12" x1="40"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="40">-10</text>
+		<line y2="1" x2="30" y1="12" x1="30"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="30">-20</text>
+		<line y2="1" x2="20" y1="12" x1="20"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="20">-30</text>
+		<line y2="1" x2="10" y1="12" x1="10"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="10">-40</text>
+		<line y2="1" x2="0" y1="12" x1="0"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="0">-50</text>
+		<line y2="1" x2="-10" y1="12" x1="-10"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="-10">-60</text>
+		<line y2="1" x2="-20" y1="12" x1="-20"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="-20">-70</text>
+		<line y2="1" x2="-30" y1="12" x1="-30"></line>
+		<text font-size="7" stroke-width="0.1" y="18" x="-30">-80</text>
+		<line stroke-width="2" y2="1" x2="-40" y1="20" x1="-40"></line>
+		<text stroke-width="0.1" y="35" x="-40">-90º</text>
+		<line y2="1" x2="-50" y1="15" x1="-50"></line>
+		<line y2="1" x2="-60" y1="15" x1="-60"></line>
+		<line y2="1" x2="-70" y1="15" x1="-70"></line>
+		<line y2="1" x2="-80" y1="15" x1="-80"></line>
+		<line y2="1" x2="-90" y1="15" x1="-90"></line>
+		<line y2="1" x2="-100" y1="15" x1="-100"></line>
+		<line y2="1" x2="-110" y1="15" x1="-110"></line>
+		<line y2="1" x2="-120" y1="15" x1="-120"></line>
+		<line y2="1" x2="-130" y1="15" x1="-130"></line> <!-- limite -180 -->
+	</g>
+
+	<g transform="translate(50,2)" stroke="yellow" stroke-width="1" id="turning-position">
+      		 <path d="M0 35 L-10 50 L10 50 z" fill="yellow"></path>
+      		 <path d="M0 0 L0 100 z" fill="yellow"></path>
+
+	</g>
+</svg>

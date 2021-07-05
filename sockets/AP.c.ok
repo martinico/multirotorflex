@@ -1,0 +1,137 @@
+
+//AP.ino
+
+#include <WiFi.h>
+#include <vector>
+ 
+//Rede que o ESP criará. No Station deve ser igual
+#define SSID "RSSI_Test"
+#define PASSWORD "87654321"
+ 
+//Tempo de timeout para considerar a conexão pedida
+#define TIMEOUT 2000
+  
+//Criamos um server (qualquer porta válida serve contanto que o cliente utilize a mesma porta)
+WiFiServer server(80);
+ 
+//Variável para armazenar o cliente (no caso o ESP32 em modo station) conectado
+WiFiClient client;
+ 
+//String que recebemos do cliente
+String received;
+ 
+//RSSI enviado pelo cliente para este ESP32
+long rssi = 0;
+ 
+//Faz o controle do temporizador (interrupção por tempo)
+hw_timer_t *timer = NULL;
+ 
+//Utilizado para guardar os ultimos
+std::vector<int> rssiHistory;
+
+void setupWiFi() {
+    Serial.println("Creating softAP " + String(SSID));
+    WiFi.disconnect();
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(IPAddress(192, 168, 0, 1), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0));
+    WiFi.softAP(SSID, PASSWORD);
+    Serial.println("softAP " + String(SSID) + " created!");
+}
+
+void waitForClient() {
+    Serial.println("Waiting for client");
+ 
+    //Aguarda o cliente conectar
+    while(!(client = server.available())) {
+        Serial.print(".");
+        delay(500);
+    }
+ 
+    Serial.println("Client connected");
+
+    //Tempo máximo que o cliente deve demorar para responder antes de dizermos que a conexão foi perdida
+    client.setTimeout(TIMEOUT);
+}
+
+//função que o temporizador irá chamar, para reiniciar o ESP32
+void IRAM_ATTR resetModule(){
+    ets_printf("(watchdog) reiniciar\n");
+    esp_restart_noos(); //reinicia o chip
+}
+ 
+void setupWatchdog() {
+    timer = timerBegin(0, 80, true); //timerID 0, div 80
+    //timer, callback, interrupção de borda
+    timerAttachInterrupt(timer, &resetModule, true);
+    //timer, tempo (us), repetição
+    timerAlarmWrite(timer, 10000000, true);
+    timerAlarmEnable(timer); //habilita a interrupção 
+}
+
+//-------------------------- SETUP -----------------------------------
+void setup() {
+    Serial.begin(115200);
+ 
+    //Cria a rede WiFi, inicializa o server e espera o cliente conectar
+    setupWiFi();
+    server.begin();
+    waitForClient();
+ 
+    //Espera 3 segundos e inicializa o Watchdog
+    delay(3000);
+    setupWatchdog();
+}
+//-------------------------- SETUP -----------------------------------
+
+void checkConnection() {
+    //Se o cliente não estiver conectado
+    if(!client.connected()) {
+        Serial.println("Client disconnected");
+        waitForClient();
+    }
+}
+
+void readFromClient() {
+    //Espera até o cliente enviar algo ou desconectar
+    while(client.connected() && !client.available()) {
+        delay(100);
+    }
+ 
+    //Se chegou aqui e ainda estiver conectado é porque possui algo para receber do cliente
+    if(client.connected()) {
+        received = client.readStringUntil('\n'); //Lê o texto que o cliente enviou
+        received.remove(received.length()-1); //Remove o \n do final
+        rssi = client.parseInt(); //Lê o rssi que o cliente enviou
+        Serial.println("RSSI: " + String(rssi)); //Mostra o RSSI no display
+        Serial.println("Received: " + received); //Mostra a mensagem recebida do cliente
+ 
+        //Adiciona no final do histórico (mais recente)
+        rssiHistory.push_back(rssi);
+    }
+}
+
+void sendToClient() {
+    //Se o cliente estiver conectado enviamos de volta a mensagem com um OK
+    if(client.connected())
+    {
+        String sending = received + " OK";
+        client.println(sending);
+    }
+}
+
+void plot() { 
+    //Para cada valor do histórico fazemos o cálculo do tamanho da barra do gráfico, desenhamos e avançamos para o próximo
+    for (int i = 0; i < rssiHistory.size(); i++) {
+        int value = rssiHistory[i];
+    }
+}
+
+//-------------------------- LOOP -----------------------------------
+void loop() {
+    timerWrite(timer, 0); //reseta o temporizador (alimenta o watchdog) 
+    checkConnection(); //checa se possui conexão com o cliente
+    readFromClient(); //lê os dados do cliente
+    sendToClient(); //envia confirmação para o cliente
+    plot(); //mostra o gráfico de histórico de rssi
+}
+//-------------------------- LOOP -----------------------------------

@@ -1,0 +1,162 @@
+
+//STATION.ino
+
+#include <WiFi.h>
+#include <vector>
+ 
+//Nome da rede que nos conectaremos. Criado pelo AP
+#define SSID "RSSI_Test"
+#define PASSWORD "87654321"
+ 
+#define HOST "192.168.0.1" //IP que foi configurado no setup do AP
+#define PORT 80 //Porta do sever. Qualquer porta válida contanto que seja igual nos dois arquivos
+ 
+//Tempo de timeout para considerar a conexão pedida
+#define TIMEOUT 2000
+ 
+long count = 0; //Contador de mensagens enviadas
+long rssi = 0; //RSSI calculado
+String received; //Mensagem de confirmação que o AP nos envia
+ 
+//Utilizado para conexão com o server
+WiFiClient socket;
+  
+hw_timer_t *timer = NULL; //faz o controle do temporizador (interrupção por tempo)
+ 
+//Utilizado para guardar os ultimos
+std::vector rssiHistory; 
+
+void setupWiFi() {
+  WiFi.disconnect();
+  WiFi.mode(WIFI_STA);
+ 
+  WiFi.begin(SSID, PASSWORD);
+  Serial.println("Connecting to " + String(SSID));
+ 
+  //Enquanto não estiver conectado à rede WiFi
+  while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+  }
+ 
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(SSID);
+}
+
+void connectToServer() {
+    Serial.println("Trying socket connection");
+ 
+    //Espera a conexão com o server
+    while(!socket.connect(HOST, PORT)) {
+        Serial.print(".");
+        delay(500);
+    }
+ 
+    Serial.println();
+    Serial.println("Connected!");
+    //Tempo máximo que o cliente deve demorar para responder antes de dizermos que a conexão foi perdida
+    socket.setTimeout(TIMEOUT);
+}
+
+//função que o temporizador irá chamar, para reiniciar o ESP32
+void IRAM_ATTR resetModule(){
+    ets_printf("(watchdog) reiniciar\n");
+    esp_restart_noos(); //reinicia o chip
+}
+ 
+void setupWatchdog() {
+    timer = timerBegin(0, 80, true); //timerID 0, div 80
+    //timer, callback, interrupção de borda
+    timerAttachInterrupt(timer, &resetModule, true);
+    //timer, tempo (us), repetição
+    timerAlarmWrite(timer, 10000000, true);
+    timerAlarmEnable(timer); //habilita a interrupção
+}
+
+//-------------------------- SETUP -----------------------------------
+void setup() {
+    Serial.begin(115200);
+ 
+    //Conecta no access point criado pelo outro ESP32 e conecta ao server
+    setupWiFi();
+    connectToServer();
+ 
+    //Espera 3 segundos e inicializa o Watchdog
+    delay(3000);
+    setupWatchdog();
+}
+//-------------------------- SETUP -----------------------------------
+
+void checkConnection() {
+    //Verifica a conexão com o AP
+    if(WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi disconnected");
+        setupWiFi();
+        delay(1000);
+    }
+ 
+    //verifica a conexão do socket
+    if(!socket.connected()) {
+        Serial.println("Socket disconnected");
+        connectToServer();
+        delay(3000);
+    }
+}
+
+void checkRSSI() {
+    //Verifica o RSSI
+    rssi = WiFi.RSSI(); 
+ 
+    //Mostra o RSSI no display
+    Serial.print("RSSI: " + String(rssi));
+  
+    //Adiciona no final do histórico (mais recente)
+    rssiHistory.push_back(rssi);
+}
+
+void plot() { 
+    //Para cada valor do histórico fazemos o cálculo do tamanho da barra do gráfico, desenhamos e avançamos para o próximo
+    for (int i = 0; i < rssiHistory.size(); i++)  {
+        int value = rssiHistory[i];
+    }
+}
+
+void sendToServer() {
+    //Se estiver conectado com o server
+    if(socket.connected()) {
+        //Envia um hello com um contador, mostra no display e incrementa o contador
+        String sending = "Hello " + String(count);
+        Serial.println("Sending: " + sending);
+        socket.println(sending);
+        socket.print(String(rssi));
+        count++;
+    }
+}
+
+void readFromServer() {
+    //Espera até o server enviar algo ou desconectar
+    while(socket.connected() && !socket.available()) {
+        delay(100);
+    }
+ 
+    //Se tem algo para receber
+    if(socket.available()) {
+        //Faz a leitura, remove o \n do final e mostra no display
+        received = socket.readStringUntil('\n');
+        received.remove(received.length()-1);
+        Serial.println("Received: " + received);
+    }
+}
+
+//-------------------------- LOOP -----------------------------------
+void loop() {
+    timerWrite(timer, 0); //reseta o temporizador (alimenta o watchdog) 
+    checkConnection(); //checa se possui conexão com o server
+    checkRSSI(); //verifica o rssi
+    plot(); //mostra o gráfico de histórico de rssi
+    sendToServer(); //envia uma mensagem com um contador para o server
+    readFromServer(); //espera a confirmação do server
+    delay(1000); //espera um segundo
+}
+//-------------------------- LOOP -----------------------------------
